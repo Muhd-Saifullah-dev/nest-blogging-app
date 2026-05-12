@@ -16,7 +16,7 @@ async function bootstrap() {
       exceptionFactory: (errors) => new BadRequestException(errors),
     }),
   );
-  app.use()
+ 
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

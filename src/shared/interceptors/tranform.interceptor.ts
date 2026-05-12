@@ -27,7 +27,7 @@ export class TranformInterceptor implements NestInterceptor {
           const { password, ...rest } = data.user;
           data = {
             ...data,
-            rest,
+            user:rest,
           };
         }
 
