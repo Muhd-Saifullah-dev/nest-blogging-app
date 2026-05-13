@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Req,
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthRepository } from 'src/database/repositories/auth.repo';
@@ -9,6 +10,7 @@ import { compare_password, hash_password } from 'src/utils/bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { createAccessToken } from 'src/utils/token';
 import { LoginDto } from './dto/login.dto';
+import { UserDetailDto } from './dto/userDetail.dto';
 
 @Injectable()
 export class AuthService {
@@ -62,6 +64,31 @@ export class AuthService {
       },
     };
   }
-  async fillUserDetails() {}
-  async getMyProfile() {}
+  async fillUserDetails(userDetailDto: UserDetailDto, userId: string) {
+    const user = await this.authRepo.fillUserDetails(userDetailDto, userId);
+    return {
+      message: 'user details successfully',
+      data: { user },
+    };
+  }
+  async getMyProfile(userId: string) {
+    console.log(userId, 'userId');
+    const user = await this.authRepo.getUserWithDetails(userId);
+    return {
+      message: 'user fetched successfully',
+      data: { user },
+    };
+  }
+
+  async logout(req: any) {
+    const token = req.headers.authorization?.split(' ')[1];
+    const tokenBlacklist = await this.authRepo.blacklistToken(
+      token,
+      req.user.id,
+    );
+    return {
+      message: 'user logged out successfull',
+      data: tokenBlacklist,
+    };
+  }
 }

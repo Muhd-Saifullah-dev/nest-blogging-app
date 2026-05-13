@@ -9,9 +9,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env.JWT_SECRET || 'Your secret key',
+       passReqToCallback: true,
     });
   }
-  async validate(payload: { sub: string }) {
+  async validate(req:any,payload: { sub: string }) {
+   const token = req.headers.authorization?.split(' ')[1];
+
+  const blacklisted = await this.authRepo.findBlacklistedToken(token);
+
+  if (blacklisted) {
+    throw new UnauthorizedException('Token is blacklisted');
+  }
     const user = await this.authRepo.findUserById(payload.sub);
 
     if (!user) {
